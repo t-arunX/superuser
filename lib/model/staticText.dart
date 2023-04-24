@@ -1,0 +1,6 @@
+class SampleText {
+  static String paragraph =
+      '''Our second typeface consideration relates to rendering. Some fonts, replete with beautiful glyphs and exceptional kerning as they may be, simply don’t render very well at small sizes. You will have noticed that embedded fonts are often reserved for headings, while system fonts (such as Verdana here) are relied on for body text.
+One of the advantages of Verdana is that it is a “well-hinted” font. Delta hinting is the provision of information within a font that specifically enhances the way it renders at small sizes on screen. The smaller the font, the fewer the pixels that make up individual glyphs, requiring intelligent reconfiguration to keep the font legible. It’s an art that should be familiar to any Web designer who’s ever tried to make tiny icons comprehensible.
+Hinting is a tricky and time-consuming process, and not many Web fonts are hinted comprehensively. Note the congealed upper portion of the bowl in the lowercase “b” in the otherwise impressive Crimson font, for instance. This small unfortunate glitch is distracting and slightly detracts from a comfortable reading experience. The effect is illustrated below and can be seen in context as a demo.''';
+}
