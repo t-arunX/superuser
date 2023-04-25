@@ -20,6 +20,7 @@ class _HomeState extends State<Home> {
     });
   }
 
+
   @override
   void initState() {
     super.initState();
@@ -43,41 +44,13 @@ class _HomeState extends State<Home> {
         child: data,
       ),
       floatingActionButton: ElevatedButton(
+        style: const ButtonStyle(elevation: MaterialStatePropertyAll(8),shadowColor: MaterialStatePropertyAll(Colors.deepPurple)),
         child: const Icon(Icons.add),
         onPressed: () {
           _showDialogBox(context, fetch);
         },
       ),
-      // bottomSheet: Builder(builder: (context) {
-      //   return ElevatedButton(
-      //       child: Text('Show Modal Bottom Sheet'),
-      //       onPressed: () {
-      //         showModalBottomSheet(
-      //           context: context,
-      //           builder: (context) {
-      //             return Padding(padding: EdgeInsets.all(10),child:Wrap(
-      //
-      //               runSpacing: 10,
-      //               children: const [
-      //                 ListTile(
-      //                   leading: Icon(Icons.share),
-      //                   title: Text('Share'),
-      //                 ),
-      //                 ListTile(
-      //                   leading: Icon(Icons.copy),
-      //                   title: Text('Copy Link'),
-      //                 ),
-      //                 ListTile(
-      //                   leading: Icon(Icons.edit),
-      //                   title: Text('Edit'),
-      //                 ),
-      //               ],
-      //             ),);
-      //           },
-      //         );
-      //       },
-      //   );
-      // }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

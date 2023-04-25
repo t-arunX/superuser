@@ -13,16 +13,22 @@ class TileGenerator {
 
   getList() {
     var data = Connection().getUserList();
-    var list = <Widget>[];
-    for (var person in data) {
-      list.add(Tile(person, init));
-    }
-    return SingleChildScrollView(child: Column(children: list));
+    // var list = <Widget>[];
+    // for (var person in data) {
+    //   list.add(Tile(person, init));
+    // }
+    return ListView.builder(
+      itemCount: data.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Tile(data[index], init);
+      },
+
+    );
+    // return SingleChildScrollView(child: Column(children: list));
   }
 }
 
 class Tile extends StatefulWidget {
-  // final String name;
   final Person data;
   void Function() init;
 
@@ -45,7 +51,7 @@ class _TileState extends State<Tile> {
   }
 
   imageProvider(String check) {
-    if (check.isNotEmpty || check != null) {
+    if (check.isNotEmpty) {
       return FileImage(File(image));
     }
     return AssetImage(imagePlaceHolder);
@@ -87,8 +93,24 @@ class _TileState extends State<Tile> {
             });
           },
           trailing: TextButton(
-              onPressed: () {
+              onLongPress: () {
                 _handleDelete();
+              },
+              onPressed: (){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Colors.black87,
+                    behavior: SnackBarBehavior.floating,
+                    elevation: 0,
+                    showCloseIcon: true,
+                    width: 200,
+                    dismissDirection: DismissDirection.endToStart,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
+                    content: Text('long press to delete'),
+                    duration: Duration(seconds: 2),
+                    closeIconColor: Colors.grey,
+                  ),
+                );
               },
               child: const Icon(
                 Icons.delete_sharp,
@@ -105,7 +127,7 @@ class _TileState extends State<Tile> {
         barrierColor: Colors.black26,
         builder: (BuildContext context) {
           return Dialog(
-            shadowColor: Colors.redAccent,
+            shadowColor: Colors.black,
             backgroundColor: Colors.white,
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -114,12 +136,65 @@ class _TileState extends State<Tile> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    "Are you sure?",
-                    style: TextStyle(
-                      color: Colors.black54,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  RichText(
+                    text: const TextSpan(
+                      children: <InlineSpan>[
+                        TextSpan(
+                            text: "Are you sure?", //dynamic
+                            style: TextStyle(
+                                fontSize: 17,
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  RichText(
+                    text: const TextSpan(
+                      children: <InlineSpan>[
+                        TextSpan(
+                            text: "you want to ", //dynamic
+                            style: TextStyle(
+                                fontSize: 17,
+                                color: Colors.black54,
+                                fontWeight: FontWeight.w400)),
+                        TextSpan(
+                            text: "Delete", //dynamic
+                            style: TextStyle(
+                                fontSize: 19,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Material(
+                    elevation: 5,
+                    color: Colors.white,
+                    shadowColor: Colors.black26,
+                    child: ListTile(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(30))),
+                      leading: CircleAvatar(
+                        foregroundImage: FileImage(File(image)),
+                        backgroundImage: AssetImage(imagePlaceHolder),
+                        backgroundColor: Colors.transparent,
+                      ),
+                      title: RichText(
+                        text: TextSpan(
+                          children: <InlineSpan>[
+                            TextSpan(
+                                text: name, //dynamic
+                                style: const TextStyle(
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w300)),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -131,15 +206,16 @@ class _TileState extends State<Tile> {
                     children: [
                       ElevatedButton(
                           onPressed: () {
-                            print(widget.data.username);
                             Connection().deleteUser(widget.data);
                             widget.init();
                             Navigator.pop(context);
                           },
                           style: const ButtonStyle(
-                              elevation: MaterialStatePropertyAll(01.0)),
+                              elevation: MaterialStatePropertyAll(01.5),
+                              shadowColor:
+                                  MaterialStatePropertyAll(Colors.redAccent)),
                           child: const Text("Yes",
-                              style: TextStyle(color: Colors.grey))),
+                              style: TextStyle(color: Colors.black26))),
                       const SizedBox(
                         width: 30,
                       ),
@@ -148,12 +224,12 @@ class _TileState extends State<Tile> {
                             Navigator.pop(context);
                           },
                           style: const ButtonStyle(
-                              elevation: MaterialStatePropertyAll(8),
+                              elevation: MaterialStatePropertyAll(5),
                               shadowColor:
                                   MaterialStatePropertyAll(Colors.green)),
                           child: const Text(
                             "No",
-                            style: TextStyle(color: Colors.green),
+                            style: TextStyle(color: Colors.lightGreen),
                           ))
                     ],
                   ),

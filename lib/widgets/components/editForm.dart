@@ -304,7 +304,7 @@ class _EditFormState extends State<EditForm> {
                     flex: 1, // <-- SEE HERE
                   ),
                   ElevatedButton(
-                      onPressed: () {
+                      onPressed: !pressedEdit ? null : () {
                         if (_editFormKey.currentState?.validate() ?? false) {
                           // handlers.map((e) => e.dispose());
                           if (pressedEdit) {

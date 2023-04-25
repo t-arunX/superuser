@@ -275,7 +275,7 @@ class _CreateFormState extends State<CreateForm> {
                     flex: 1, // <-- SEE HERE
                   ),
                   ElevatedButton(
-                      onPressed: () {
+                      onPressed:  () {
                         if (_crateFormKey.currentState?.validate() ?? false) {
                           _crateFormKey.currentState?.save();
                           try {
@@ -288,7 +288,7 @@ class _CreateFormState extends State<CreateForm> {
                           Navigator.pop(context);
                         }
                       },
-                      child: const Text("save")),
+                      child: const Text("create")),
                 ],
               ),
             ],
