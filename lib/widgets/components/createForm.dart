@@ -4,11 +4,16 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:realm/realm.dart';
 import 'package:superuser/helper/realm/Connection.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../../helper/realm/source/person.dart';
-import '../HomePage.dart';
+
+enum Gender { male, female, other, none }
+//
+// enum Roles { user, admin , superAdmin}
 
 class CreateForm extends StatefulWidget {
   final Function setStateCallBack;
@@ -32,7 +37,15 @@ class _CreateFormState extends State<CreateForm> {
 
   List? handlers;
 
+  String? imgPath;
+
   Person data = Person(ObjectId(), "");
+
+  Gender _gender = Gender.none;
+
+  List _roles = [false, false];
+
+  List _langs = [false, false, false, false];
 
   String generateRandomString({int len = 9}) {
     var r = Random();
@@ -51,7 +64,6 @@ class _CreateFormState extends State<CreateForm> {
       countryHandler
     ];
   }
-  String? imgPath;
 
   _imageHandler(choice) {
     void imagePicker(choice) async {
@@ -136,9 +148,9 @@ class _CreateFormState extends State<CreateForm> {
                 child: const Text(
                   "new form: ",
                   style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w100,
-                    color: Colors.purple,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w200,
+                    color: Colors.indigo,
                   ),
                 ),
               ),
@@ -162,7 +174,8 @@ class _CreateFormState extends State<CreateForm> {
                 child: SizedBox(
                   width: double.infinity,
                   child: CircleAvatar(
-                    foregroundImage: FileImage(File(imgPath ?? imagePlaceHolder)),
+                    foregroundImage:
+                        FileImage(File(imgPath ?? imagePlaceHolder)),
                     backgroundImage: const AssetImage(
                         "assets/loading/profile_placeholder.jpg"),
                     backgroundColor: Colors.transparent,
@@ -262,6 +275,193 @@ class _CreateFormState extends State<CreateForm> {
               const SizedBox(
                 height: 20,
               ),
+              // checks
+
+              // Dob (date picker - where age cant be less than 5 years(in calender level) and person cant be above 130 years)
+              // initialSelectedRanges: [PickerDateRange(DateTime.tryParse("1900-01-01"), DateTime.now())],
+              ExpansionTile(
+                // onExpansionChanged: (state) => _isCalenderExpanded = state,
+                title: const Text("Date of birth"),
+                children: [
+                  SfDateRangePicker(
+                    onSelectionChanged: (val) {},
+                  ),
+                ],
+              ),
+
+              // mobile number with country suggestion(icons with country pins)
+              Container(
+                  width: 280,
+                  child: IntlPhoneField(
+                    decoration: const InputDecoration(
+                      labelText: 'Phone Number',
+                      // border: OutlineInputBorder(
+                      //   borderSide: BorderSide(),
+                      // ),
+                    ),
+                    initialCountryCode: 'IN',
+                    onChanged: (phone) {
+                      if (kDebugMode) {
+                        print(phone.completeNumber);
+                      }
+                    },
+                  )),
+              // gender [male female, other]
+              Container(
+                  padding: const EdgeInsets.all(5),
+                  margin: const EdgeInsets.only(right: 220),
+                  child: const Text(
+                    "Gender: ",
+                    style: TextStyle(
+                        color: Colors.grey, fontWeight: FontWeight.bold),
+                  )),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: const Text('None'),
+                    contentPadding: const EdgeInsets.all(0),
+                    leading: Radio<Gender>(
+                      value: Gender.none,
+                      groupValue: _gender,
+                      onChanged: (Gender? value) {
+                        setState(() {
+                          _gender = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text('Male'),
+                    contentPadding: const EdgeInsets.all(0),
+                    leading: Radio<Gender>(
+                      value: Gender.male,
+                      groupValue: _gender,
+                      onChanged: (Gender? value) {
+                        setState(() {
+                          _gender = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text('Female'),
+                    contentPadding: const EdgeInsets.all(0),
+                    leading: Radio<Gender>(
+                      value: Gender.female,
+                      groupValue: _gender,
+                      onChanged: (Gender? value) {
+                        setState(() {
+                          _gender = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text('Other'),
+                    contentPadding: const EdgeInsets.all(0),
+                    leading: Radio<Gender>(
+                      value: Gender.other,
+                      groupValue: _gender,
+                      onChanged: (Gender? value) {
+                        setState(() {
+                          _gender = value!;
+                        });
+                      },
+                    ),
+                  )
+                ],
+              ),
+
+              const Divider(),
+              // access role [user,admin,{join account access}]
+              Container(
+                  padding: const EdgeInsets.all(5),
+                  margin: const EdgeInsets.only(right: 220),
+                  child: const Text(
+                    "Roles: ",
+                    style: TextStyle(
+                        color: Colors.grey, fontWeight: FontWeight.bold),
+                  )),
+              Container(
+                  margin: const EdgeInsets.only(right: 150),
+                  width: 200,
+                  child: Column(
+                    children: [
+                      CheckboxListTile(
+                        value: _roles[0],
+                        onChanged: (val) => setState(() {
+                          _roles[0] = val;
+                        }),
+                        title: const Text("user"),
+                      ),
+                      CheckboxListTile(
+                        value: _roles[1],
+                        onChanged: (val) => setState(() {
+                          _roles[1] = val;
+                        }),
+                        title: const Text("admin"),
+                      ),
+                    ],
+                  )),
+              const Divider(),
+              // access role [user,admin,{join account access}]
+              Container(
+                  padding: const EdgeInsets.all(5),
+                  margin: const EdgeInsets.only(right: 120),
+                  child: const Text(
+                    "preferred languages: ",
+                    style: TextStyle(
+                        color: Colors.grey, fontWeight: FontWeight.bold),
+                  )),
+              Container(
+                  margin: const EdgeInsets.only(right: 140),
+                  width: 200,
+                  child: Column(
+                    children: [
+                      CheckboxListTile(
+                        value: _langs[0],
+                        onChanged: (val) => setState(() {
+                          _langs[0] = val;
+                        }),
+                        title: const Text("English"),
+                      ),
+                      CheckboxListTile(
+                        value: _langs[1],
+                        onChanged: (val) => setState(() {
+                          _langs[1] = val;
+                        }),
+                        title: const Text("hindi"),
+                      ),
+                      CheckboxListTile(
+                        value: _langs[2],
+                        onChanged: (val) => setState(() {
+                          _langs[2] = val;
+                        }),
+                        title: const Text("Telugu"),
+                      ),
+                      CheckboxListTile(
+                        value: _langs[3],
+                        onChanged: (val) => setState(() {
+                          _langs[3] = val;
+                        }),
+                        title: const Text("others"),
+                      ),
+                    ],
+                  )),
+
+              // CheckboxListTile(value: _role, onChanged: (val) {}),
+
+              // preferred languages {english, telugu,hindi,others (text field)}
+
+              //{optional}// signature field
+              Column(
+                children: const [],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -275,15 +475,17 @@ class _CreateFormState extends State<CreateForm> {
                     flex: 1, // <-- SEE HERE
                   ),
                   ElevatedButton(
-                      onPressed:  () {
+                      onPressed: () {
                         if (_crateFormKey.currentState?.validate() ?? false) {
                           _crateFormKey.currentState?.save();
                           try {
                             Connection().insert(data);
                             widget.setStateCallBack();
                           } catch (ex) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                  content: Text("something went wrong, please try again later")));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        "something went wrong, please try again later")));
                           }
                           Navigator.pop(context);
                         }

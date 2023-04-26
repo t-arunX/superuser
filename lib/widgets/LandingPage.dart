@@ -20,7 +20,7 @@ class _LandingPageState extends State<LandingPage> {
         dividerColor: Colors.grey,
         useMaterial3: true,
       ),
-      home: const Home(),
+      home: const SafeArea(child: Home(),),
     );
   }
 }

@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   realm: ^1.0.3
   image_picker:
+  syncfusion_flutter_datepicker:
+  intl_phone_field:
 
 
   # The following adds the Cupertino Icons font to your application.
