@@ -15,4 +15,27 @@ class _Person{
   late String? state;
   late String? country;
 
+  late String? dob;
+  late String? gender;
+  late _Mobile? mobile;
+  late _Role? roles;
+  late _Language? language;
+}
+
+@RealmModel()
+class _Mobile{
+  late String? pin;
+  late String? number;
+}
+
+@RealmModel()
+class _Role{
+  late bool user;
+  late bool admin;
+}
+
+@RealmModel()
+class _Language{
+  late List<String> name;
+  late String? other;
 }

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:intl_phone_field/phone_number.dart';
 import 'package:realm/realm.dart';
 import 'package:superuser/helper/realm/Connection.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -46,6 +47,8 @@ class _CreateFormState extends State<CreateForm> {
   List _roles = [false, false];
 
   List _langs = [false, false, false, false];
+
+
 
   String generateRandomString({int len = 9}) {
     var r = Random();
@@ -141,6 +144,7 @@ class _CreateFormState extends State<CreateForm> {
         child: Container(
           padding: const EdgeInsets.only(right: 20, left: 20, bottom: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.only(top: 10, bottom: 10),
@@ -280,18 +284,21 @@ class _CreateFormState extends State<CreateForm> {
               // Dob (date picker - where age cant be less than 5 years(in calender level) and person cant be above 130 years)
               // initialSelectedRanges: [PickerDateRange(DateTime.tryParse("1900-01-01"), DateTime.now())],
               ExpansionTile(
+                leading: const Icon(Icons.calendar_month_sharp),
                 // onExpansionChanged: (state) => _isCalenderExpanded = state,
                 title: const Text("Date of birth"),
                 children: [
                   SfDateRangePicker(
-                    onSelectionChanged: (val) {},
+                    onSelectionChanged: (val) {
+
+                    },
                   ),
                 ],
               ),
 
               // mobile number with country suggestion(icons with country pins)
               Container(
-                  width: 280,
+                  width: 300,
                   child: IntlPhoneField(
                     decoration: const InputDecoration(
                       labelText: 'Phone Number',
@@ -300,24 +307,23 @@ class _CreateFormState extends State<CreateForm> {
                       // ),
                     ),
                     initialCountryCode: 'IN',
-                    onChanged: (phone) {
-                      if (kDebugMode) {
-                        print(phone.completeNumber);
-                      }
+                    onSaved: (val){
+                      data.mobile = Mobile(pin: val?.countryISOCode,number: val?.number);
                     },
                   )),
               // gender [male female, other]
-              Container(
-                  padding: const EdgeInsets.all(5),
-                  margin: const EdgeInsets.only(right: 220),
-                  child: const Text(
-                    "Gender: ",
-                    style: TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.bold),
-                  )),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              // Container(
+              //     padding: const EdgeInsets.all(5),
+              //     margin: const EdgeInsets.only(right: 220),
+              //     child: const Text(
+              //       "Gender: ",
+              //       style: TextStyle(
+              //           color: Colors.grey, fontWeight: FontWeight.bold),
+              //     )),
+
+              ExpansionTile(
+                // onExpansionChanged: (state) => _isCalenderExpanded = state,
+                title: const Text("Gender"),
                 children: [
                   ListTile(
                     title: const Text('None'),
@@ -448,12 +454,14 @@ class _CreateFormState extends State<CreateForm> {
                         }),
                         title: const Text("others"),
                       ),
+
                     ],
                   )),
 
-              // CheckboxListTile(value: _role, onChanged: (val) {}),
-
-              // preferred languages {english, telugu,hindi,others (text field)}
+              TextFormField(
+                enabled: _langs[3],
+                decoration: InputDecoration(hintText: 'enter language',border: OutlineInputBorder(borderRadius: BorderRadius.circular(20))),
+              ),
 
               //{optional}// signature field
               Column(
@@ -478,6 +486,7 @@ class _CreateFormState extends State<CreateForm> {
                       onPressed: () {
                         if (_crateFormKey.currentState?.validate() ?? false) {
                           _crateFormKey.currentState?.save();
+                          _handleSubmit();
                           try {
                             Connection().insert(data);
                             widget.setStateCallBack();
@@ -498,5 +507,19 @@ class _CreateFormState extends State<CreateForm> {
         ),
       ),
     );
+  }
+  _handleSubmit(){
+    // mobile
+
+
+    //dob
+
+    //mobile
+
+    //gender
+
+    //roles
+
+    //langs
   }
 }
