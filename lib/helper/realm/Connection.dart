@@ -7,7 +7,7 @@ import '../../widgets/LandingPage.dart';
 class Connection {
   static Realm realm = Realm(Configuration.local(
       [Person.schema, Mobile.schema, Language.schema, Role.schema],
-      schemaVersion: 3));
+      schemaVersion: 5));
 
   getMaxId() {
     // var y = realm.all<Person>().query('Person.@max.UserId');

@@ -29,13 +29,12 @@ class _Mobile{
 }
 
 @RealmModel()
-class _Role{
-  late bool user;
-  late bool admin;
+class _Role {
+  late bool? user;
+  late bool? admin;
 }
 
 @RealmModel()
 class _Language{
   late List<String> name;
-  late String? other;
 }

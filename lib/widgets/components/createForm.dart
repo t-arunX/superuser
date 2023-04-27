@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:intl_phone_field/phone_number.dart';
 import 'package:realm/realm.dart';
 import 'package:superuser/helper/realm/Connection.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -33,6 +32,7 @@ class _CreateFormState extends State<CreateForm> {
   var cityHandler = TextEditingController();
   var stateHandler = TextEditingController();
   var countryHandler = TextEditingController();
+  var otherLangController = TextEditingController();
 
   String imagePlaceHolder = "assets/loading/profile_placeholder.jpg";
 
@@ -47,8 +47,6 @@ class _CreateFormState extends State<CreateForm> {
   List _roles = [false, false];
 
   List _langs = [false, false, false, false];
-
-
 
   String generateRandomString({int len = 9}) {
     var r = Random();
@@ -281,8 +279,6 @@ class _CreateFormState extends State<CreateForm> {
               ),
               // checks
 
-              // Dob (date picker - where age cant be less than 5 years(in calender level) and person cant be above 130 years)
-              // initialSelectedRanges: [PickerDateRange(DateTime.tryParse("1900-01-01"), DateTime.now())],
               ExpansionTile(
                 leading: const Icon(Icons.calendar_month_sharp),
                 // onExpansionChanged: (state) => _isCalenderExpanded = state,
@@ -290,7 +286,8 @@ class _CreateFormState extends State<CreateForm> {
                 children: [
                   SfDateRangePicker(
                     onSelectionChanged: (val) {
-
+                      // print(val.value.toString().split(" ")[0]);
+                      data.dob = val.value.toString().split(' ').first;
                     },
                   ),
                 ],
@@ -459,8 +456,12 @@ class _CreateFormState extends State<CreateForm> {
                   )),
 
               TextFormField(
+                controller: otherLangController,
                 enabled: _langs[3],
-                decoration: InputDecoration(hintText: 'enter language',border: OutlineInputBorder(borderRadius: BorderRadius.circular(20))),
+                decoration: InputDecoration(
+                    hintText: 'enter language',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20))),
               ),
 
               //{optional}// signature field
@@ -508,18 +509,36 @@ class _CreateFormState extends State<CreateForm> {
       ),
     );
   }
-  _handleSubmit(){
-    // mobile
-
-
-    //dob
-
-    //mobile
-
+  _handleSubmit() {
     //gender
+    switch (_gender) {
+      case Gender.male:
+        data.gender = "male";
+        break;
+      case Gender.female:
+        data.gender = "female";
+        break;
+      case Gender.other:
+        data.gender = "other";
+        break;
+    }
 
     //roles
+    data.roles = Role(admin: _roles[0], user: _roles[1]);
 
     //langs
+    List<String> lst = [];
+    if (_langs[0]) {
+      lst.add("English");
+    }
+    if (_langs[1]) {
+      lst.add("Hindi");
+    }
+    if (_langs[2]) {
+      lst.add("Telugu");
+    } else {
+      lst.add(otherLangController.text);
+    }
+    data.language = Language(name: RealmList(lst));
   }
 }

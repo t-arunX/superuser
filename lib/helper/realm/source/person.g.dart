@@ -185,10 +185,10 @@ class Mobile extends _Mobile with RealmEntity, RealmObjectBase, RealmObject {
 }
 
 class Role extends _Role with RealmEntity, RealmObjectBase, RealmObject {
-  Role(
-    bool user,
-    bool admin,
-  ) {
+  Role({
+    bool? user,
+    bool? admin,
+  }) {
     RealmObjectBase.set(this, 'user', user);
     RealmObjectBase.set(this, 'admin', admin);
   }
@@ -196,14 +196,14 @@ class Role extends _Role with RealmEntity, RealmObjectBase, RealmObject {
   Role._();
 
   @override
-  bool get user => RealmObjectBase.get<bool>(this, 'user') as bool;
+  bool? get user => RealmObjectBase.get<bool>(this, 'user') as bool?;
   @override
-  set user(bool value) => RealmObjectBase.set(this, 'user', value);
+  set user(bool? value) => RealmObjectBase.set(this, 'user', value);
 
   @override
-  bool get admin => RealmObjectBase.get<bool>(this, 'admin') as bool;
+  bool? get admin => RealmObjectBase.get<bool>(this, 'admin') as bool?;
   @override
-  set admin(bool value) => RealmObjectBase.set(this, 'admin', value);
+  set admin(bool? value) => RealmObjectBase.set(this, 'admin', value);
 
   @override
   Stream<RealmObjectChanges<Role>> get changes =>
@@ -217,8 +217,8 @@ class Role extends _Role with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Role._);
     return const SchemaObject(ObjectType.realmObject, Role, 'Role', [
-      SchemaProperty('user', RealmPropertyType.bool),
-      SchemaProperty('admin', RealmPropertyType.bool),
+      SchemaProperty('user', RealmPropertyType.bool, optional: true),
+      SchemaProperty('admin', RealmPropertyType.bool, optional: true),
     ]);
   }
 }
@@ -226,10 +226,8 @@ class Role extends _Role with RealmEntity, RealmObjectBase, RealmObject {
 class Language extends _Language
     with RealmEntity, RealmObjectBase, RealmObject {
   Language({
-    String? other,
     Iterable<String> name = const [],
   }) {
-    RealmObjectBase.set(this, 'other', other);
     RealmObjectBase.set<RealmList<String>>(
         this, 'name', RealmList<String>(name));
   }
@@ -242,11 +240,6 @@ class Language extends _Language
   @override
   set name(covariant RealmList<String> value) =>
       throw RealmUnsupportedSetError();
-
-  @override
-  String? get other => RealmObjectBase.get<String>(this, 'other') as String?;
-  @override
-  set other(String? value) => RealmObjectBase.set(this, 'other', value);
 
   @override
   Stream<RealmObjectChanges<Language>> get changes =>
@@ -262,7 +255,6 @@ class Language extends _Language
     return const SchemaObject(ObjectType.realmObject, Language, 'Language', [
       SchemaProperty('name', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('other', RealmPropertyType.string, optional: true),
     ]);
   }
 }
