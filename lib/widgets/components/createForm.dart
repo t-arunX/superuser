@@ -508,6 +508,8 @@ class _CreateFormState extends State<CreateForm> {
                         if (_crateFormKey.currentState?.validate() ?? false) {
                           _crateFormKey.currentState?.save();
                           _handleSubmit();
+                          _showScaffoldMessenger(
+                              'user "${data.username}" has been created!');
                           try {
                             Connection().insert(data);
                             widget.setStateCallBack(index: -1);
@@ -601,5 +603,16 @@ class _CreateFormState extends State<CreateForm> {
       lst.add(otherLangController.text);
     }
     data.language = Language(name: RealmList(lst));
+  }
+
+  _showScaffoldMessenger(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: RichText(
+      text: TextSpan(children: [
+        const TextSpan(
+            text: "note! ", style: TextStyle(color: Colors.orangeAccent)),
+        TextSpan(text: msg),
+      ]),
+    )));
   }
 }

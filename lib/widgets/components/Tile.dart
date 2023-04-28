@@ -215,7 +215,8 @@ class _TileState extends State<Tile> {
                             Connection().deleteUser(
                                 ObjectId.fromHexString(personModel.userId));
                             widget.fetch(index: widget.index);
-                            _showScaffoldMessenger("user had been deleted");
+                            _showScaffoldMessenger(
+                                ' "$name"  has been deleted');
                             Navigator.pop(context);
                           },
                           style: const ButtonStyle(

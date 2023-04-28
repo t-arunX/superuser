@@ -57,6 +57,7 @@ class _EditFormState extends State<EditForm> {
           imgPath = image.path;
           Connection().updateImage(image.path, widget.data.userId);
           widget.setStateCallBack(index: -1);
+          _showScaffoldMessenger("changes have been made");
         });
       } catch (ex) {
         if (kDebugMode) {
@@ -323,6 +324,19 @@ class _EditFormState extends State<EditForm> {
                 child: RichText(
                     text: TextSpan(children: [
                   const TextSpan(
+                      text: "Age: ",
+                      style: TextStyle(color: Colors.deepPurple)),
+                  TextSpan(
+                      text:
+                          "${getAge(widget.data.dob ?? "NA")} years" ?? "none",
+                      style: const TextStyle(color: Colors.black54)),
+                ])),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5, bottom: 10),
+                child: RichText(
+                    text: TextSpan(children: [
+                  const TextSpan(
                       text: "Gender: ",
                       style: TextStyle(color: Colors.deepPurple)),
                   TextSpan(
@@ -431,5 +445,26 @@ class _EditFormState extends State<EditForm> {
   _handleSubmit() {
     data.roles = RoleM(user: _roles[1], admin: _roles[0]);
     data.language = widget.data.language ?? LanguageM();
+  }
+
+  _showScaffoldMessenger(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: RichText(
+      text: TextSpan(children: [
+        const TextSpan(text: "warning! ", style: TextStyle(color: Colors.red)),
+        TextSpan(text: msg),
+      ]),
+    )));
+  }
+
+  getAge(String? date) {
+    if (!(date == "NA")) {
+      // DateTime dt1 = DateTime.parse(date!).year;
+      // // print(date);
+      // return dt1.difference(DateTime.now()).inDays.abs().toString();
+      int dt1 = DateTime.parse(date!).year;
+      return (dt1 - DateTime.now().year.abs()).toString();
+    }
+    return "";
   }
 }
