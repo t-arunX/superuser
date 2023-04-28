@@ -1,38 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:realm/realm.dart';
 import 'package:superuser/helper/realm/Connection.dart';
+import 'package:superuser/model/PersonModel.dart';
 
-import '../../helper/realm/source/person.dart';
 import 'editForm.dart';
 
-class TileGenerator {
-  void Function() init;
-
-  TileGenerator(this.init);
-
-  getList() {
-    var data = Connection().getUserList();
-    // var list = <Widget>[];
-    // for (var person in data) {
-    //   list.add(Tile(person, init));
-    // }
-    return ListView.builder(
-      itemCount: data.length,
-      itemBuilder: (BuildContext context, int index) {
-        return Tile(data[index], init);
-      },
-
-    );
-    // return SingleChildScrollView(child: Column(children: list));
-  }
-}
-
 class Tile extends StatefulWidget {
-  final Person data;
-  void Function() init;
+  PersonModel data;
+  Function fetch;
+  int? index;
 
-  Tile(this.data, this.init, {Key? key}) : super(key: key);
+  Tile(this.data, this.index, this.fetch, {Key? key}) : super(key: key);
 
   @override
   State<Tile> createState() => _TileState();
@@ -43,15 +23,36 @@ class _TileState extends State<Tile> {
   late String image;
   late String name;
 
+  late PersonModel personModel;
+
+  void refresh() {
+    // if (kDebugMode) {
+    //   print("__refresh() called");
+    // }
+    setState(() {
+      image = widget.data.imageUrl ?? imagePlaceHolder;
+      name = widget.data.username!;
+      personModel = widget.data;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // if (kDebugMode) {
+    //   print("__didchangedependencies: $name");
+    // }
+    refresh();
+  }
+
   @override
   void initState() {
     super.initState();
-    image = widget.data.imageUrl ?? imagePlaceHolder;
-    name = widget.data.username;
+    refresh();
   }
 
-  imageProvider(String check) {
-    if (check.isNotEmpty) {
+  imageProvider(String image) {
+    if (image.isNotEmpty) {
       return FileImage(File(image));
     }
     return AssetImage(imagePlaceHolder);
@@ -59,6 +60,7 @@ class _TileState extends State<Tile> {
 
   @override
   Widget build(BuildContext context) {
+    refresh();
     return Container(
       padding: const EdgeInsets.only(
           // left: 10, right: 10,
@@ -73,7 +75,8 @@ class _TileState extends State<Tile> {
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10))),
           leading: CircleAvatar(
-            foregroundImage: FileImage(File(image)),
+            foregroundImage:
+                FileImage(File(widget.data.imageUrl ?? imagePlaceHolder)),
             backgroundImage: AssetImage(imagePlaceHolder),
             backgroundColor: Colors.transparent,
           ),
@@ -81,22 +84,21 @@ class _TileState extends State<Tile> {
             text: TextSpan(
               children: <InlineSpan>[
                 TextSpan(
-                    text: name, //dynamic
+                    text: name ?? "N/A", //dynamic
                     style: const TextStyle(
-                        color: Colors.black87, fontWeight: FontWeight.w300)),
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 17)),
               ],
             ),
           ),
           onTap: () {
             setState(() {
-              _showDialogBox(context, widget.init, widget.data);
+              _showDialogBox(context, widget.fetch, widget.data);
             });
           },
           trailing: TextButton(
               onLongPress: () {
-                _handleDelete();
-              },
-              onPressed: (){
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     backgroundColor: Colors.black87,
@@ -105,12 +107,16 @@ class _TileState extends State<Tile> {
                     showCloseIcon: true,
                     width: 200,
                     dismissDirection: DismissDirection.endToStart,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(50))),
                     content: Text('long press to delete'),
                     duration: Duration(seconds: 2),
                     closeIconColor: Colors.grey,
                   ),
                 );
+              },
+              onPressed: () {
+                _handleDelete();
               },
               child: const Icon(
                 Icons.delete_sharp,
@@ -206,8 +212,10 @@ class _TileState extends State<Tile> {
                     children: [
                       ElevatedButton(
                           onPressed: () {
-                            Connection().deleteUser(widget.data);
-                            widget.init();
+                            Connection().deleteUser(
+                                ObjectId.fromHexString(personModel.userId));
+                            widget.fetch(index: widget.index);
+                            _showScaffoldMessenger("user had been deleted");
                             Navigator.pop(context);
                           },
                           style: const ButtonStyle(
@@ -281,5 +289,15 @@ class _TileState extends State<Tile> {
         ),
       ),
     );
+  }
+
+  _showScaffoldMessenger(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: RichText(
+      text: TextSpan(children: [
+        const TextSpan(text: "warning! ", style: TextStyle(color: Colors.red)),
+        TextSpan(text: msg),
+      ]),
+    )));
   }
 }

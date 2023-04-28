@@ -54,7 +54,6 @@ class _CreateFormState extends State<CreateForm> {
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     return List.generate(len, (index) => chars[r.nextInt(chars.length)]).join();
   }
-
   setHandlers() {
     handlers = [
       usernameHandler,
@@ -191,6 +190,10 @@ class _CreateFormState extends State<CreateForm> {
                 width: double.infinity,
                 child: TextFormField(
                   decoration: const InputDecoration(
+                      helperText: "required*",
+                      helperStyle: TextStyle(color: Colors.red),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20))),
                       hintText: 'username',
                       errorStyle: TextStyle(color: Colors.red)),
                   validator: (value) {
@@ -205,8 +208,29 @@ class _CreateFormState extends State<CreateForm> {
                   autofillHints: const ["username", "password"],
                 ),
               ),
+              Container(
+                width: 300,
+                // height: 80,
+                child: IntlPhoneField(
+                  decoration: const InputDecoration(
+                    helperText: "required*",
+                    helperStyle: TextStyle(color: Colors.red),
+                    labelText: 'Phone Number *',
+                    // border: OutlineInputBorder(
+                    //   borderSide: BorderSide(),
+                    // ),
+                  ),
+                  initialCountryCode: 'IN',
+                  onSaved: (val) {
+                    data.mobile =
+                        Mobile(pin: val?.countryISOCode, number: val?.number);
+                  },
+                ),
+              ),
               TextFormField(
                 decoration: const InputDecoration(
+                    helperText: "required*",
+                    helperStyle: TextStyle(color: Colors.red),
                     hintText: 'firstname',
                     errorStyle: TextStyle(color: Colors.red)),
                 validator: (value) {
@@ -221,6 +245,8 @@ class _CreateFormState extends State<CreateForm> {
               ),
               TextFormField(
                 decoration: const InputDecoration(
+                    helperText: "required*",
+                    helperStyle: TextStyle(color: Colors.red),
                     hintText: 'lastname',
                     errorStyle: TextStyle(color: Colors.red)),
                 validator: (value) {
@@ -233,52 +259,6 @@ class _CreateFormState extends State<CreateForm> {
                 },
                 controller: lastnameHandler,
               ),
-              TextFormField(
-                decoration: const InputDecoration(
-                    hintText: 'city', errorStyle: TextStyle(color: Colors.red)),
-                validator: (value) {
-                  return value == '' || value!.contains("@")
-                      ? "text field can't be empty"
-                      : null;
-                },
-                onSaved: (val) {
-                  data.city = val;
-                },
-                controller: cityHandler,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                    hintText: 'state',
-                    errorStyle: TextStyle(color: Colors.red)),
-                validator: (value) {
-                  return value == '' || value!.contains("@")
-                      ? "text field can't be empty"
-                      : null;
-                },
-                onSaved: (val) {
-                  data.state = val;
-                },
-                controller: stateHandler,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                    hintText: 'country',
-                    errorStyle: TextStyle(color: Colors.red)),
-                validator: (value) {
-                  return value == '' || value!.contains("@")
-                      ? "text field can't be empty"
-                      : null;
-                },
-                onSaved: (val) {
-                  data.country = val;
-                },
-                controller: countryHandler,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              // checks
-
               ExpansionTile(
                 leading: const Icon(Icons.calendar_month_sharp),
                 // onExpansionChanged: (state) => _isCalenderExpanded = state,
@@ -292,32 +272,6 @@ class _CreateFormState extends State<CreateForm> {
                   ),
                 ],
               ),
-
-              // mobile number with country suggestion(icons with country pins)
-              Container(
-                  width: 300,
-                  child: IntlPhoneField(
-                    decoration: const InputDecoration(
-                      labelText: 'Phone Number',
-                      // border: OutlineInputBorder(
-                      //   borderSide: BorderSide(),
-                      // ),
-                    ),
-                    initialCountryCode: 'IN',
-                    onSaved: (val){
-                      data.mobile = Mobile(pin: val?.countryISOCode,number: val?.number);
-                    },
-                  )),
-              // gender [male female, other]
-              // Container(
-              //     padding: const EdgeInsets.all(5),
-              //     margin: const EdgeInsets.only(right: 220),
-              //     child: const Text(
-              //       "Gender: ",
-              //       style: TextStyle(
-              //           color: Colors.grey, fontWeight: FontWeight.bold),
-              //     )),
-
               ExpansionTile(
                 // onExpansionChanged: (state) => _isCalenderExpanded = state,
                 title: const Text("Gender"),
@@ -363,6 +317,10 @@ class _CreateFormState extends State<CreateForm> {
                   ),
                   ListTile(
                     title: const Text('Other'),
+                    subtitle: const Text(
+                      "Tap to choose",
+                      style: TextStyle(fontSize: 14),
+                    ),
                     contentPadding: const EdgeInsets.all(0),
                     leading: Radio<Gender>(
                       value: Gender.other,
@@ -376,8 +334,71 @@ class _CreateFormState extends State<CreateForm> {
                   )
                 ],
               ),
+              TextFormField(
+                decoration: const InputDecoration(
+                    helperText: "required*",
+                    helperStyle: TextStyle(color: Colors.red),
+                    hintText: 'city',
+                    errorStyle: TextStyle(color: Colors.red)),
+                validator: (value) {
+                  return value == '' || value!.contains("@")
+                      ? "text field can't be empty"
+                      : null;
+                },
+                onSaved: (val) {
+                  data.city = val;
+                },
+                controller: cityHandler,
+              ),
+              TextFormField(
+                decoration: const InputDecoration(
+                    helperText: "required*",
+                    helperStyle: TextStyle(color: Colors.red),
+                    hintText: 'state',
+                    errorStyle: TextStyle(color: Colors.red)),
+                validator: (value) {
+                  return value == '' || value!.contains("@")
+                      ? "text field can't be empty"
+                      : null;
+                },
+                onSaved: (val) {
+                  data.state = val;
+                },
+                controller: stateHandler,
+              ),
+              TextFormField(
+                decoration: const InputDecoration(
+                    helperText: "required*",
+                    helperStyle: TextStyle(color: Colors.red),
+                    hintText: 'country',
+                    errorStyle: TextStyle(color: Colors.red)),
+                validator: (value) {
+                  return value == '' || value!.contains("@")
+                      ? "text field can't be empty"
+                      : null;
+                },
+                onSaved: (val) {
+                  data.country = val;
+                },
+                controller: countryHandler,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              // checks
 
-              const Divider(),
+              // mobile number with country suggestion(icons with country pins)
+              // gender [male female, other]
+              // Container(
+              //     padding: const EdgeInsets.all(5),
+              //     margin: const EdgeInsets.only(right: 220),
+              //     child: const Text(
+              //       "Gender: ",
+              //       style: TextStyle(
+              //           color: Colors.grey, fontWeight: FontWeight.bold),
+              //     )),
+
+              // const Divider(),
               // access role [user,admin,{join account access}]
               Container(
                   padding: const EdgeInsets.all(5),
@@ -451,7 +472,6 @@ class _CreateFormState extends State<CreateForm> {
                         }),
                         title: const Text("others"),
                       ),
-
                     ],
                   )),
 
@@ -490,8 +510,9 @@ class _CreateFormState extends State<CreateForm> {
                           _handleSubmit();
                           try {
                             Connection().insert(data);
-                            widget.setStateCallBack();
+                            widget.setStateCallBack(index: -1);
                           } catch (ex) {
+                            print(ex);
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text(
@@ -499,6 +520,41 @@ class _CreateFormState extends State<CreateForm> {
                           }
                           Navigator.pop(context);
                         }
+                        //start else
+                        // please fillout required details:
+
+                        else {
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              barrierColor: Colors.black12,
+                              builder: (context) {
+                                return Dialog(
+                                  // alignment: AlignmentDirectional.bottomCenter,
+                                  child: Container(
+                                      padding: const EdgeInsets.all(20),
+                                      height: 130,
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            const Text(
+                                                "please fillout required details: "),
+                                            const Spacer(
+                                              flex: 1,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: const Text("ok"),
+                                            )
+                                          ],
+                                        ),
+                                      )),
+                                );
+                              });
+                        }
+
+                        //end else
                       },
                       child: const Text("create")),
                 ],
@@ -509,6 +565,7 @@ class _CreateFormState extends State<CreateForm> {
       ),
     );
   }
+
   _handleSubmit() {
     //gender
     switch (_gender) {
@@ -520,6 +577,9 @@ class _CreateFormState extends State<CreateForm> {
         break;
       case Gender.other:
         data.gender = "other";
+        break;
+      case Gender.none:
+        data.gender = "none";
         break;
     }
 
@@ -536,7 +596,8 @@ class _CreateFormState extends State<CreateForm> {
     }
     if (_langs[2]) {
       lst.add("Telugu");
-    } else {
+    }
+    if (_langs[3]) {
       lst.add(otherLangController.text);
     }
     data.language = Language(name: RealmList(lst));

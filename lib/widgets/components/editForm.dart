@@ -1,21 +1,19 @@
 import 'dart:io';
-import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:realm/realm.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:superuser/helper/realm/Connection.dart';
 
-import '../../helper/realm/source/person.dart';
-import '../HomePage.dart';
-import '../LandingPage.dart';
+import '../../model/PersonModel.dart';
 
 class EditForm extends StatefulWidget {
-  final Person data;
+  PersonModel data;
   final Function setStateCallBack;
 
-  const EditForm(this.data,this.setStateCallBack, {Key? key}) : super(key: key);
+  EditForm(this.data, this.setStateCallBack, {Key? key}) : super(key: key);
 
   @override
   State<EditForm> createState() => _EditFormState();
@@ -38,10 +36,12 @@ class _EditFormState extends State<EditForm> {
 
   bool pressedEdit = false;
 
-  late Person data = Person(widget.data.userId, "");
-
+  late PersonModel data = PersonModel(userId: widget.data.userId, username: "");
 
   String? imgPath;
+
+  late List _roles;
+
   _imageHandler(choice) {
     void imagePicker(choice) async {
       try {
@@ -53,12 +53,15 @@ class _EditFormState extends State<EditForm> {
           image = await picker.pickImage(source: ImageSource.camera);
         }
         setState(() {
-          imgPath = image!.path;
-          data.imageUrl = imgPath;
-          Connection().updateImage(data, widget.data);
+          data.imageUrl = image!.path;
+          imgPath = image.path;
+          Connection().updateImage(image.path, widget.data.userId);
+          widget.setStateCallBack(index: -1);
         });
       } catch (ex) {
-        print(ex);
+        if (kDebugMode) {
+          print("exception at image handler: $ex");
+        }
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text("something went wrong, please try again later")));
       }
@@ -119,6 +122,11 @@ class _EditFormState extends State<EditForm> {
     imgPath = widget.data.imageUrl;
 
     // handlers.addAll([usernameHandler,firstnameHandler,lastnameHandler,cityHandler,stateHandler,countryHandler]);
+
+    _roles = [
+      widget.data.roles?.admin ?? false,
+      widget.data.roles?.user ?? false
+    ];
   }
 
   @override
@@ -131,26 +139,19 @@ class _EditFormState extends State<EditForm> {
           padding: const EdgeInsets.only(right: 20, left: 20, bottom: 20),
           // color: Colors.white60,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              // SizedBox(
-              //   height: 170,
-              //   width: double.infinity,
-              //   child: CircleAvatar(
-              //     backgroundImage: NetworkImage(image, scale: 10),
-              //     // radius: 100,
-              //   ),
-              // ),
               Badge(
                 backgroundColor: Colors.transparent,
                 alignment: const AlignmentDirectional(190, 110),
                 largeSize: 90,
                 label: ElevatedButton(
-                    onPressed: (){
-                      setState(() {
-                        pressedEdit = true;
-                        globalEnable = globalEnable == true ? false : true;
-                      });
+                    onPressed: () {
+                      // setState(() {
+                      //   // pressedEdit = true;
+                      //   // globalEnable = globalEnable == true ? false : true;
+                      // });
                       _imageHandler(true);
                     },
                     style: ButtonStyle(
@@ -160,12 +161,13 @@ class _EditFormState extends State<EditForm> {
                             Checkbox.width)),
                         elevation: const MaterialStatePropertyAll(5),
                         shadowColor:
-                        const MaterialStatePropertyAll(Colors.green)),
+                            const MaterialStatePropertyAll(Colors.green)),
                     child: const Icon(Icons.edit)),
                 child: SizedBox(
                   width: double.infinity,
                   child: CircleAvatar(
-                    foregroundImage: FileImage(File(imgPath ?? imagePlaceHolder)),
+                    foregroundImage:
+                        FileImage(File(imgPath ?? imagePlaceHolder)),
                     backgroundImage: const AssetImage(
                         "assets/loading/profile_placeholder.jpg"),
                     backgroundColor: Colors.transparent,
@@ -213,8 +215,28 @@ class _EditFormState extends State<EditForm> {
                 controller: usernameHandler,
                 autofillHints: const ["username", "password"],
               ),
+              SizedBox(
+                width: 300,
+                // height: 80,
+                child: IntlPhoneField(
+                  initialValue: widget.data.mobile?.number ?? "",
+                  enabled: globalEnable,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number *',
+                    // border: OutlineInputBorder(
+                    //   borderSide: BorderSide(),
+                    // ),
+                  ),
+                  initialCountryCode: 'IN',
+                  onSaved: (val) {
+                    data.mobile =
+                        MobileM(pin: val?.countryISOCode, number: val?.number);
+                  },
+                ),
+              ),
               TextFormField(
                 decoration: const InputDecoration(
+                    helperText: "firstname",
                     hintText: 'firstname',
                     errorStyle: TextStyle(color: Colors.red)),
                 validator: (value) {
@@ -230,6 +252,7 @@ class _EditFormState extends State<EditForm> {
               ),
               TextFormField(
                 decoration: const InputDecoration(
+                    helperText: "lastname",
                     hintText: 'lastname',
                     errorStyle: TextStyle(color: Colors.red)),
                 validator: (value) {
@@ -245,7 +268,9 @@ class _EditFormState extends State<EditForm> {
               ),
               TextFormField(
                 decoration: const InputDecoration(
-                    hintText: 'city', errorStyle: TextStyle(color: Colors.red)),
+                    helperText: "city",
+                    hintText: 'city',
+                    errorStyle: TextStyle(color: Colors.red)),
                 validator: (value) {
                   // print(value);
                   return value == '' || value!.contains("@")
@@ -260,6 +285,7 @@ class _EditFormState extends State<EditForm> {
               ),
               TextFormField(
                 decoration: const InputDecoration(
+                    helperText: "state",
                     hintText: 'state',
                     errorStyle: TextStyle(color: Colors.red)),
                 validator: (value) {
@@ -275,6 +301,7 @@ class _EditFormState extends State<EditForm> {
               ),
               TextFormField(
                 decoration: const InputDecoration(
+                    helperText: "country",
                     hintText: 'country',
                     errorStyle: TextStyle(color: Colors.red)),
                 validator: (value) {
@@ -291,6 +318,66 @@ class _EditFormState extends State<EditForm> {
               const SizedBox(
                 height: 20,
               ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5, bottom: 10),
+                child: RichText(
+                    text: TextSpan(children: [
+                  const TextSpan(
+                      text: "Gender: ",
+                      style: TextStyle(color: Colors.deepPurple)),
+                  TextSpan(
+                      text: widget.data.gender ?? "none",
+                      style: const TextStyle(color: Colors.black54)),
+                ])),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5, bottom: 10),
+                child: RichText(
+                    text: TextSpan(children: [
+                  const TextSpan(
+                    text: "preferred languages: ",
+                    style: TextStyle(color: Colors.deepPurple),
+                  ),
+                  ...?widget.data.language?.name?.mapIndexed((i, langs) {
+                    if (widget.data.language?.name?.length == i + 1) {
+                      // print(widget.data.language?.name.length );
+                      return TextSpan(
+                        text: '$langs.',
+                        style: const TextStyle(color: Colors.grey),
+                      );
+                    } else {
+                      // print(i);
+                      return TextSpan(
+                        text: '$langs ,',
+                        style: const TextStyle(color: Colors.grey),
+                      );
+                    }
+                  }).toList(),
+                ])),
+              ),
+              Container(
+                  margin: const EdgeInsets.only(right: 150),
+                  width: 200,
+                  child: Column(
+                    children: [
+                      CheckboxListTile(
+                        enabled: globalEnable,
+                        value: _roles[0],
+                        onChanged: (val) => setState(() {
+                          _roles[0] = val;
+                        }),
+                        title: const Text("user"),
+                      ),
+                      CheckboxListTile(
+                        enabled: globalEnable,
+                        value: _roles[1],
+                        onChanged: (val) => setState(() {
+                          _roles[1] = val;
+                        }),
+                        title: const Text("admin"),
+                      ),
+                    ],
+                  )),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -304,27 +391,33 @@ class _EditFormState extends State<EditForm> {
                     flex: 1, // <-- SEE HERE
                   ),
                   ElevatedButton(
-                      onPressed: !pressedEdit ? null : () {
-                        if (_editFormKey.currentState?.validate() ?? false) {
-                          // handlers.map((e) => e.dispose());
-                          if (pressedEdit) {
-                            _editFormKey.currentState?.save();
-                            try {
-                              data.imageUrl = imgPath;
-                              Connection().updateUser(data, widget.data);
-                              widget.setStateCallBack();
-                            } catch (ex) {
-                              if (kDebugMode) {
-                                print('Button error: $ex');
+                      onPressed: !pressedEdit
+                          ? null
+                          : () {
+                              if (_editFormKey.currentState?.validate() ??
+                                  false) {
+                                // handlers.map((e) => e.dispose());
+                                if (pressedEdit) {
+                                  _editFormKey.currentState?.save();
+                                  try {
+                                    data.imageUrl = imgPath;
+                                    _handleSubmit();
+                                    Connection()
+                                        .updateUser(data, widget.data.userId);
+                                    widget.setStateCallBack(index: -1);
+                                  } catch (ex) {
+                                    if (kDebugMode) {
+                                      print('__onSubmit: $ex');
+                                    }
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                "something went wrong, please try again later")));
+                                  }
+                                }
+                                Navigator.pop(context);
                               }
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                  content: Text("something went wrong, please try again later")));
-                            }
-                          }
-                          Navigator.pop(context);
-
-                        }
-                      },
+                            },
                       child: const Text("save")),
                 ],
               ),
@@ -333,5 +426,10 @@ class _EditFormState extends State<EditForm> {
         ),
       ),
     );
+  }
+
+  _handleSubmit() {
+    data.roles = RoleM(user: _roles[1], admin: _roles[0]);
+    data.language = widget.data.language ?? LanguageM();
   }
 }
